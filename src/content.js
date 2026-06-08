@@ -91,9 +91,16 @@
     return { label: "높음", cls: "high" };
   }
 
+  // "<10" 같은 문자열도 안전하게 숫자로 변환
+  function safeInt(v) {
+    return parseInt(String(v).replace(/[^0-9]/g, "")) || 0;
+  }
+
   function formatNum(n) {
-    if (!n || n === "<10") return n || "0";
-    return parseInt(n).toLocaleString("ko-KR");
+    const num = safeInt(n);
+    if (!n || n === "") return "0";
+    if (String(n).startsWith("<")) return "<10";
+    return num.toLocaleString("ko-KR");
   }
 
   function renderResults(keywordList, usage) {
@@ -105,7 +112,7 @@
 
     const main = keywordList[0];
     const related = keywordList.slice(1, 10);
-    const totalSearch = (parseInt(main.monthlyPcQcCnt) || 0) + (parseInt(main.monthlyMobileQcCnt) || 0);
+    const totalSearch = safeInt(main.monthlyPcQcCnt) + safeInt(main.monthlyMobileQcCnt);
     const comp = competitionLabel(main.compIdx);
 
     // 사용량 업데이트
@@ -144,7 +151,7 @@
     if (related.length > 0) {
       html += `<div style="margin-top:8px;font-size:10px;color:#6b6b85;margin-bottom:6px;letter-spacing:.5px">연관 키워드 (클릭하면 분석)</div>`;
       related.forEach(k => {
-        const total = (parseInt(k.monthlyPcQcCnt) || 0) + (parseInt(k.monthlyMobileQcCnt) || 0);
+        const total = safeInt(k.monthlyPcQcCnt) + safeInt(k.monthlyMobileQcCnt);
         const kComp = competitionLabel(k.compIdx);
         html += `
           <div class="nseo-keyword-card nseo-related-card" data-keyword="${k.relKeyword}" style="cursor:pointer;opacity:0.85">
