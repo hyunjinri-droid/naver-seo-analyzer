@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>Naver SEO Analyzer</title>
+  <style>
+    :root {
+      --bg: #0d0d16;
+      --surface: #13131e;
+      --surface2: #1c1c28;
+      --border: #2a2a3a;
+      --accent: #03c75a;
+      --text: #e8e8f0;
+      --muted: #6b6b85;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      width: 300px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Pretendard', -apple-system, sans-serif;
+      font-size: 13px;
+    }
+
+    /* ── 헤더 ── */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 16px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity:1; }
+      50% { opacity:.45; }
+    }
+    .logo { font-size: 14px; font-weight: 700; }
+    .logo span { color: var(--accent); }
+
+    /* ── 사용량 카드 ── */
+    .usage-card {
+      margin: 14px 14px 0;
+      padding: 12px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+    .usage-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .usage-label {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: .3px;
+    }
+    .usage-count {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1;
+    }
+    .usage-count span {
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--muted);
+    }
+    /* 진행 바 */
+    .usage-bar-wrap {
+      height: 5px;
+      background: var(--surface2);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .usage-bar {
+      height: 100%;
+      border-radius: 99px;
+      background: var(--accent);
+      transition: width .6s cubic-bezier(.4,0,.2,1), background .3s;
+    }
+    .usage-bar.warn { background: #ffb400; }
+    .usage-bar.danger { background: #ff5050; }
+    /* 잔여 텍스트 */
+    .usage-remain {
+      margin-top: 6px;
+      font-size: 10px;
+      color: var(--muted);
+      text-align: right;
+    }
+    .usage-remain.warn { color: #ffb400; }
+    .usage-remain.danger { color: #ff5050; }
+
+    /* ── 안내 박스 ── */
+    .info {
+      padding: 12px 16px;
+      font-size: 11.5px;
+      color: var(--muted);
+      line-height: 1.75;
+    }
+    .info strong { color: var(--text); display: block; margin-bottom: 4px; }
+
+    /* ── 구분선 ── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0 14px;
+    }
+
+    /* ── Pro 배너 ── */
+    .pro-banner {
+      margin: 10px 14px 14px;
+      padding: 10px 12px;
+      background: linear-gradient(135deg, rgba(3,199,90,.12), rgba(3,199,90,.04));
+      border: 1px solid rgba(3,199,90,.22);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .pro-text {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    .pro-text strong { color: var(--accent); font-size: 12px; }
+    .pro-btn {
+      flex-shrink: 0;
+      padding: 5px 10px;
+      background: var(--accent);
+      border: none;
+      border-radius: 6px;
+      color: #000;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity .15s;
+    }
+    .pro-btn:hover { opacity: .85; }
+
+    /* ── 로딩 ── */
+    .loading-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 14px 2px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+    .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <div class="dot"></div>
+    <div class="logo">Naver <span>SEO</span> Analyzer</div>
+  </div>
+
+  <!-- 사용량 -->
+  <div id="usage-section">
+    <div class="loading-wrap">
+      <div class="spinner"></div>사용량 불러오는 중…
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 사용 방법 -->
+  <div class="info">
+    <strong>사용 방법</strong>
+    네이버 블로그 글쓰기 페이지에 접속하면<br>
+    화면 오른쪽에 SEO 패널이 자동으로 나타나요.<br>
+    키워드를 입력하면 월간 검색량, 경쟁도,<br>
+    연관 키워드를 바로 확인할 수 있어요.
+  </div>
+
+  <!-- Pro 배너 -->
+  <div class="pro-banner">
+    <div class="pro-text">
+      <strong>Pro 플랜</strong>
+      무제한 분석 · ₩4,900/월
+    </div>
+    <button class="pro-btn" id="pro-btn">업그레이드</button>
+  </div>
+
+  <script src="src/popup.js"></script>
+</body>
+</html>
