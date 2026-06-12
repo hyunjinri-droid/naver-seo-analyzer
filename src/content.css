@@ -80,6 +80,17 @@
   color: #03c75a;
 }
 
+#nseo-content {
+  max-height: 520px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: #2a2a3a transparent;
+}
+#nseo-content::-webkit-scrollbar { width: 4px; }
+#nseo-content::-webkit-scrollbar-track { background: transparent; }
+#nseo-content::-webkit-scrollbar-thumb { background: #2a2a3a; border-radius: 99px; }
+
 #nseo-body { padding: 12px; }
 
 #nseo-input-wrap {
@@ -311,3 +322,174 @@
 }
 
 .nseo-save-btn:hover { opacity: 0.9; }
+
+/* ── 탭 ───────────────────────────────────────────────── */
+#nseo-tabs {
+  display: flex;
+  gap: 3px;
+  margin-bottom: 10px;
+  background: #0d0d16;
+  padding: 2px;
+  border-radius: 8px;
+  border: 1px solid #2a2a3a;
+}
+.nseo-tab {
+  flex: 1;
+  padding: 5px 2px;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  color: #6b6b85;
+  font-size: 9px;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.nseo-tab.active {
+  background: #1c1c28;
+  color: #03c75a;
+  font-weight: 700;
+}
+.nseo-tab:hover:not(.active) { color: #a0a0c0; }
+
+.nseo-tab-content { display: none; }
+.nseo-tab-content.active { display: block; }
+
+/* ── 제목체크 / 비교 공통 ─────────────────────────────── */
+.nseo-title-desc {
+  font-size: 10px;
+  color: #6b6b85;
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+#nseo-title-wrap, #nseo-compare-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+#nseo-title-input, #nseo-compare-input {
+  width: 100%;
+  padding: 8px 10px;
+  background: #1c1c28;
+  border: 1px solid #2a2a3a;
+  border-radius: 7px;
+  color: #e8e8f0;
+  font-size: 12px;
+  outline: none;
+  resize: none;
+  transition: border-color 0.15s;
+  font-family: inherit;
+  line-height: 1.5;
+}
+#nseo-title-input:focus, #nseo-compare-input:focus { border-color: #03c75a; }
+#nseo-title-input::placeholder, #nseo-compare-input::placeholder { color: #4a4a60; }
+#nseo-title-btn, #nseo-compare-btn {
+  padding: 8px 12px;
+  background: #03c75a;
+  border: none;
+  border-radius: 7px;
+  color: #000;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+#nseo-title-btn:hover, #nseo-compare-btn:hover {
+  opacity: 0.85;
+}
+#nseo-title-btn:disabled, #nseo-compare-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── 비교 바 차트 ─────────────────────────────────────── */
+.nseo-title-header {
+  font-size: 10px;
+  color: #6b6b85;
+  margin-bottom: 8px;
+  letter-spacing: .4px;
+}
+.nseo-compare-row {
+  background: #13131e;
+  border: 1px solid #2a2a3a;
+  border-radius: 8px;
+  padding: 9px 10px;
+  margin-bottom: 5px;
+  animation: nseo-fadein 0.3s ease;
+}
+.nseo-compare-kw {
+  font-size: 12px;
+  font-weight: 600;
+  color: #e8e8f0;
+  margin-bottom: 6px;
+}
+.nseo-compare-bar-wrap {
+  height: 6px;
+  background: #1c1c28;
+  border-radius: 99px;
+  overflow: hidden;
+}
+.nseo-compare-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #03c75a, #00a048);
+  border-radius: 99px;
+  transition: width 0.6s cubic-bezier(.4,0,.2,1);
+}
+.nseo-compare-val {
+  font-size: 11px;
+  font-weight: 600;
+  color: #03c75a;
+}
+.nseo-title-score {
+  margin-top: 8px;
+  padding: 9px 10px;
+  background: rgba(3,199,90,0.06);
+  border: 1px solid rgba(3,199,90,0.18);
+  border-radius: 7px;
+  font-size: 11px;
+  color: #a0a0c0;
+  line-height: 1.5;
+}
+
+/* ── 히스토리 ─────────────────────────────────────────── */
+.nseo-history-item {
+  background: #13131e;
+  border: 1px solid #2a2a3a;
+  border-radius: 8px;
+  padding: 9px 10px;
+  margin-bottom: 5px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  animation: nseo-fadein 0.2s ease;
+}
+.nseo-history-item:hover { border-color: #03c75a; }
+.nseo-history-kw {
+  font-size: 12px;
+  font-weight: 600;
+  color: #e8e8f0;
+}
+
+/* ── 트렌드 박스 ──────────────────────────────────────── */
+.nseo-trend-box {
+  margin-top: 10px;
+  padding: 8px 10px;
+  background: #0d0d16;
+  border: 1px solid #2a2a3a;
+  border-radius: 7px;
+}
+.nseo-trend-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.nseo-trend-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 10px;
+}
+.nseo-trend-badge.trend-up { background: rgba(3,199,90,0.15); color: #03c75a; }
+.nseo-trend-badge.trend-down { background: rgba(255,80,80,0.15); color: #ff5050; }
+.nseo-trend-badge.trend-flat { background: rgba(107,107,133,0.15); color: #6b6b85; }

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Naver Blog SEO Analyzer",
-  "version": "1.0.0",
+  "version": "1.2.1",
   "description": "네이버 블로그 글쓰기 시 키워드 검색량과 경쟁도를 실시간으로 확인하세요",
   "permissions": [
     "storage",
