@@ -5,7 +5,10 @@
 
   const WORKER_URL = "https://naver-seo.hyunjinri.workers.dev";
   const HISTORY_KEY = "nseo_history";
+  const LICENSE_KEY = "nseo_license";
   const MAX_HISTORY = 20;
+
+  let licenseKey = null;
 
   // ── 히스토리 유틸 ──────────────────────────────────────
   async function loadHistory() {
@@ -111,15 +114,29 @@
 
   // ── 사용량 ─────────────────────────────────────────────
   async function loadUsage() {
-    try { const res = await fetch(`${WORKER_URL}/usage`); updateBadge(await res.json()); } catch(e) {}
+    try {
+      const headers = licenseKey ? { "X-License-Key": licenseKey } : {};
+      const res = await fetch(`${WORKER_URL}/usage`, { headers });
+      updateBadge(await res.json());
+    } catch(e) {}
   }
   function updateBadge(usage) {
     const badge = document.getElementById("nseo-usage-badge");
     if (!badge || !usage) return;
+    if (usage.isPro) {
+      badge.textContent = "Pro ∞";
+      badge.style.color = "#03c75a";
+      return;
+    }
     badge.textContent = `${usage.count}/${usage.limit}`;
     badge.style.color = usage.remaining <= 2 ? "#ff5050" : "#6b6b85";
   }
-  loadUsage();
+
+  // 라이선스 키 로드 후 사용량 확인
+  chrome.storage.local.get([LICENSE_KEY], r => {
+    licenseKey = r[LICENSE_KEY] || null;
+    loadUsage();
+  });
 
   // ── 공통 유틸 ──────────────────────────────────────────
   function safeInt(v) { return parseInt(String(v).replace(/[^0-9]/g, "")) || 0; }
@@ -139,7 +156,8 @@
 
   // ── API 호출 ───────────────────────────────────────────
   async function fetchKeyword(keyword) {
-    const res = await fetch(`${WORKER_URL}/keyword?q=${encodeURIComponent(keyword)}`);
+    const headers = licenseKey ? { "X-License-Key": licenseKey } : {};
+    const res = await fetch(`${WORKER_URL}/keyword?q=${encodeURIComponent(keyword)}`, { headers });
     const data = await res.json();
     if (res.status === 429) throw new Error(data.message || "일일 한도 초과");
     if (!res.ok || data.error) throw new Error(data.error || "분석 실패");

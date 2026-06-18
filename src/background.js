@@ -1,11 +1,16 @@
 // background.js - Naver SEO Analyzer
-// API 호출은 Cloudflare Worker 프록시 경유
-
 const WORKER_URL = "https://naver-seo.hyunjinri.workers.dev";
+const LICENSE_KEY = "nseo_license";
 
 async function getKeywordData(keywords) {
   const keyword = keywords[0];
-  const res = await fetch(`${WORKER_URL}/keyword?q=${encodeURIComponent(keyword)}`);
+  const stored = await chrome.storage.local.get([LICENSE_KEY]);
+  const licenseKey = stored[LICENSE_KEY] || null;
+
+  const headers = {};
+  if (licenseKey) headers["X-License-Key"] = licenseKey;
+
+  const res = await fetch(`${WORKER_URL}/keyword?q=${encodeURIComponent(keyword)}`, { headers });
   if (!res.ok) {
     const err = await res.text();
     throw new Error(`API 오류: ${res.status} - ${err}`);
@@ -13,17 +18,19 @@ async function getKeywordData(keywords) {
   return res.json();
 }
 
+// 확장프로그램 내부 메시지 처리
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   (async () => {
     try {
       if (msg.type === "ANALYZE_KEYWORD") {
         const data = await getKeywordData(msg.keywords);
         sendResponse({ ok: true, data });
-      } else if (msg.type === "SAVE_KEYS") {
-        // Worker 방식에서는 키 저장 불필요 (서버에 저장)
+      } else if (msg.type === "GET_LICENSE") {
+        const stored = await chrome.storage.local.get([LICENSE_KEY]);
+        sendResponse({ ok: true, key: stored[LICENSE_KEY] || null });
+      } else if (msg.type === "CLEAR_LICENSE") {
+        await chrome.storage.local.remove([LICENSE_KEY]);
         sendResponse({ ok: true });
-      } else if (msg.type === "GET_KEYS") {
-        sendResponse({ ok: true, configured: true });
       } else {
         sendResponse({ ok: false, error: "Unknown message" });
       }
@@ -32,4 +39,15 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     }
   })();
   return true;
+});
+
+// GitHub Pages 결제 완료 페이지에서 라이선스 키 수신
+chrome.runtime.onMessageExternal.addListener((msg, sender, sendResponse) => {
+  if (msg.type === "SET_LICENSE" && msg.key) {
+    chrome.storage.local.set({ [LICENSE_KEY]: msg.key }, () => {
+      sendResponse({ ok: true });
+    });
+    return true;
+  }
+  sendResponse({ ok: false, error: "Unknown message" });
 });
