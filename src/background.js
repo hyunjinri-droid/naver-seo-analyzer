@@ -18,7 +18,6 @@ async function getKeywordData(keywords) {
   return res.json();
 }
 
-// 확장프로그램 내부 메시지 처리
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   (async () => {
     try {
@@ -39,15 +38,4 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     }
   })();
   return true;
-});
-
-// GitHub Pages 결제 완료 페이지에서 라이선스 키 수신
-chrome.runtime.onMessageExternal.addListener((msg, sender, sendResponse) => {
-  if (msg.type === "SET_LICENSE" && msg.key) {
-    chrome.storage.local.set({ [LICENSE_KEY]: msg.key }, () => {
-      sendResponse({ ok: true });
-    });
-    return true;
-  }
-  sendResponse({ ok: false, error: "Unknown message" });
 });

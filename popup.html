@@ -148,6 +148,54 @@
     }
     .pro-btn:hover { opacity: .85; }
 
+    /* ── 라이선스 입력 ── */
+    .license-section {
+      padding: 0 14px 12px;
+      display: none;
+    }
+    .license-row {
+      display: flex;
+      gap: 6px;
+    }
+    .license-input {
+      flex: 1;
+      padding: 6px 9px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 11px;
+      outline: none;
+    }
+    .license-input:focus { border-color: var(--accent); }
+    .license-submit {
+      padding: 6px 10px;
+      background: var(--accent);
+      border: none;
+      border-radius: 6px;
+      color: #000;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .license-submit:disabled { opacity: .5; cursor: not-allowed; }
+    .license-msg { font-size: 10px; margin-top: 5px; }
+    .license-msg.ok { color: var(--accent); }
+    .license-msg.err { color: #ff5050; }
+    .toggle-license {
+      display: block;
+      text-align: center;
+      font-size: 10px;
+      color: var(--muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding-bottom: 12px;
+      text-decoration: underline;
+      width: 100%;
+    }
+    .toggle-license:hover { color: var(--text); }
+
     /* ── 로딩 ── */
     .loading-wrap {
       display: flex;
@@ -193,13 +241,23 @@
   </div>
 
   <!-- Pro 배너 -->
-  <div class="pro-banner">
+  <div class="pro-banner" id="pro-banner">
     <div class="pro-text">
       <strong>Pro 플랜</strong>
       무제한 분석 · ₩4,900/월
     </div>
-    <button class="pro-btn" id="pro-btn">업그레이드</button>
+    <button class="pro-btn" id="pro-btn">구매하기</button>
   </div>
+
+  <!-- 라이선스 키 입력 -->
+  <div class="license-section" id="license-section">
+    <div class="license-row">
+      <input class="license-input" id="license-input" type="text" placeholder="Gumroad 라이선스 키 붙여넣기" />
+      <button class="license-submit" id="license-submit">인증</button>
+    </div>
+    <div class="license-msg" id="license-msg"></div>
+  </div>
+  <button class="toggle-license" id="toggle-license">이미 구매하셨나요? 라이선스 키 입력</button>
 
   <script src="src/popup.js"></script>
 </body>

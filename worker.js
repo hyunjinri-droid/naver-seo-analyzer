@@ -1,5 +1,5 @@
 // Cloudflare Worker - Naver SEO API Proxy
-// 무료: 하루 15회 / Pro: 무제한
+// 무료: 하루 15회 / Pro: 무제한 (Gumroad 라이선스)
 
 const FREE_LIMIT = 15;
 
@@ -16,7 +16,6 @@ export default {
       const keyword = url.searchParams.get("q");
       if (!keyword) return json({ error: "keyword required" }, 400);
 
-      // Pro 라이선스 검증
       const licenseKey = request.headers.get("X-License-Key");
       const isPro = licenseKey ? await verifyLicense(licenseKey, env) : false;
 
@@ -77,59 +76,49 @@ export default {
       return json({ isPro: false, count, limit: FREE_LIMIT, remaining: Math.max(0, FREE_LIMIT - count) });
     }
 
-    // ── /payment/confirm - 토스페이먼츠 결제 승인 ─────────
-    if (url.pathname === "/payment/confirm" && request.method === "POST") {
+    // ── /license/verify - Gumroad 라이선스 키 검증 ────────
+    if (url.pathname === "/license/verify" && request.method === "POST") {
       let body;
       try { body = await request.json(); } catch { return json({ error: "invalid body" }, 400); }
 
-      const { paymentKey, orderId, amount } = body;
-      if (!paymentKey || !orderId || !amount) {
-        return json({ error: "missing params" }, 400);
-      }
+      const { licenseKey } = body;
+      if (!licenseKey) return json({ error: "missing license_key" }, 400);
 
-      // 토스 결제 승인 API 호출
-      const tossRes = await fetch("https://api.tosspayments.com/v1/payments/confirm", {
-        method: "POST",
-        headers: {
-          "Authorization": `Basic ${btoa(env.TOSS_SECRET_KEY + ":")}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ paymentKey, orderId, amount })
-      });
-
-      if (!tossRes.ok) {
-        const err = await tossRes.json().catch(() => ({}));
-        return json({ error: "payment_failed", message: err.message || "결제 승인 실패" }, 400);
-      }
-
-      // 라이선스 키 발급 (UUID, 31일 유효)
-      const licenseKey = crypto.randomUUID();
-      const expiry = new Date();
-      expiry.setDate(expiry.getDate() + 31);
-
-      if (env.USAGE_KV) {
-        await env.USAGE_KV.put(
-          `license:${licenseKey}`,
-          JSON.stringify({ orderId, expiry: expiry.toISOString(), plan: "pro" }),
-          { expirationTtl: 32 * 24 * 3600 }
-        );
-      }
-
-      return json({ licenseKey, expiry: expiry.toISOString() });
+      const valid = await verifyLicense(licenseKey, env);
+      return json({ valid });
     }
 
     return json({ error: "Not found" }, 404);
   },
 };
 
-// ── 라이선스 유효성 검증 ──────────────────────────────────
+// ── Gumroad 라이선스 검증 (KV 캐시 24시간) ───────────────
 async function verifyLicense(key, env) {
   if (!env.USAGE_KV || !key) return false;
-  const data = await env.USAGE_KV.get(`license:${key}`);
-  if (!data) return false;
+
+  // KV 캐시 확인
+  const cached = await env.USAGE_KV.get(`verified:${key}`);
+  if (cached !== null) return cached === "1";
+
+  // Gumroad API 검증
   try {
-    const { expiry } = JSON.parse(data);
-    return new Date(expiry) > new Date();
+    const res = await fetch("https://api.gumroad.com/v2/licenses/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        product_id: env.GUMROAD_PRODUCT_ID,
+        license_key: key,
+      })
+    });
+    const data = await res.json();
+    const valid = res.ok && data.success === true;
+
+    // 유효한 키: 24시간 캐시 / 무효한 키: 1시간 캐시
+    await env.USAGE_KV.put(`verified:${key}`, valid ? "1" : "0", {
+      expirationTtl: valid ? 86400 : 3600
+    });
+
+    return valid;
   } catch { return false; }
 }
 

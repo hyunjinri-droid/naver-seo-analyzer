@@ -8,12 +8,8 @@
   ],
   "host_permissions": [
     "https://*.workers.dev/*",
-    "https://blog.naver.com/*",
-    "https://hyunjinri-droid.github.io/*"
+    "https://blog.naver.com/*"
   ],
-  "externally_connectable": {
-    "matches": ["https://hyunjinri-droid.github.io/*"]
-  },
   "action": {
     "default_popup": "popup.html",
     "default_icon": {

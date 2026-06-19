@@ -6,7 +6,6 @@
   <title>Pro 업그레이드 - Naver SEO Analyzer</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: #0d0d1a;
@@ -17,7 +16,6 @@
       justify-content: center;
       padding: 24px;
     }
-
     .card {
       background: #14142a;
       border: 1px solid #2a2a45;
@@ -26,20 +24,12 @@
       max-width: 420px;
       width: 100%;
     }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 28px;
-    }
+    .logo { display: flex; align-items: center; gap: 8px; margin-bottom: 28px; }
     .dot { width: 8px; height: 8px; border-radius: 50%; background: #03c75a; }
     .logo-text { font-size: 15px; font-weight: 600; }
     .logo-text span { color: #03c75a; }
-
     h1 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
     .subtitle { font-size: 13px; color: #8080a0; margin-bottom: 28px; line-height: 1.6; }
-
     .price-box {
       background: rgba(3,199,90,.08);
       border: 1px solid rgba(3,199,90,.2);
@@ -51,20 +41,11 @@
     .price { font-size: 32px; font-weight: 800; color: #03c75a; }
     .price span { font-size: 14px; font-weight: 400; color: #8080a0; }
     .price-note { font-size: 11px; color: #8080a0; margin-top: 4px; }
-
     .features { list-style: none; margin-bottom: 28px; display: flex; flex-direction: column; gap: 10px; }
-    .features li {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 13px;
-      color: #c0c0e0;
-    }
-    .features li::before { content: "✓"; color: #03c75a; font-weight: 700; font-size: 14px; }
-
-    #payment-method { margin-bottom: 20px; }
-
+    .features li { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #c0c0e0; }
+    .features li::before { content: "✓"; color: #03c75a; font-weight: 700; }
     .pay-btn {
+      display: block;
       width: 100%;
       padding: 14px;
       background: #03c75a;
@@ -74,26 +55,23 @@
       font-weight: 700;
       color: #000;
       cursor: pointer;
+      text-align: center;
+      text-decoration: none;
       transition: opacity .15s;
     }
     .pay-btn:hover { opacity: .85; }
-    .pay-btn:disabled { opacity: .5; cursor: not-allowed; }
-
-    .notice {
-      font-size: 11px;
-      color: #5a5a80;
-      text-align: center;
-      margin-top: 14px;
-      line-height: 1.7;
-    }
-
-    .error-msg {
-      color: #ff5050;
+    .notice { font-size: 11px; color: #5a5a80; text-align: center; margin-top: 14px; line-height: 1.7; }
+    .steps {
+      background: #1a1a30;
+      border: 1px solid #2a2a45;
+      border-radius: 10px;
+      padding: 16px 18px;
+      margin-top: 20px;
       font-size: 12px;
-      text-align: center;
-      margin-top: 10px;
-      display: none;
+      color: #8080a0;
+      line-height: 2;
     }
+    .steps strong { color: #e0e0f0; display: block; margin-bottom: 4px; }
   </style>
 </head>
 <body>
@@ -108,7 +86,7 @@
 
     <div class="price-box">
       <div class="price">₩4,900 <span>/ 월</span></div>
-      <div class="price-note">부가세 포함 · 31일 이용권</div>
+      <div class="price-note">1회 구매 · 31일 이용권 · 자동 갱신 없음</div>
     </div>
 
     <ul class="features">
@@ -119,61 +97,20 @@
       <li>분석 히스토리 저장</li>
     </ul>
 
-    <div id="payment-method"></div>
-    <button class="pay-btn" id="pay-btn">카드로 결제하기</button>
-    <div class="error-msg" id="error-msg"></div>
+    <!-- ⚠️ Gumroad 상품 URL로 교체하세요 -->
+    <a class="pay-btn" href="https://hyunjinri.gumroad.com/l/YOUR_PRODUCT_ID" target="_blank">
+      Gumroad에서 구매하기
+    </a>
 
-    <p class="notice">
-      결제 후 확장프로그램에 자동으로 Pro 활성화됩니다.<br>
-      구독은 자동 갱신되지 않으며, 만료 후 재구매가 필요합니다.<br>
-      문의: hyunjinri@gmail.com
-    </p>
+    <div class="steps">
+      <strong>구매 후 활성화 방법</strong>
+      1. Gumroad에서 결제 완료<br>
+      2. 이메일로 발송된 라이선스 키 복사<br>
+      3. 확장프로그램 팝업 → "라이선스 키 입력" 클릭<br>
+      4. 키 붙여넣기 후 인증 → Pro 즉시 활성화
+    </div>
+
+    <p class="notice">문의: hyunjinri@gmail.com</p>
   </div>
-
-  <!-- 토스페이먼츠 SDK -->
-  <script src="https://js.tosspayments.com/v1/payment"></script>
-  <script>
-    // URL 파라미터에서 확장프로그램 ID 추출
-    const params = new URLSearchParams(location.search);
-    const extId = params.get("ext") || "";
-
-    // ⚠️ 토스페이먼츠 클라이언트 키를 아래에 입력하세요
-    // 테스트: "test_ck_..." / 실제: "live_ck_..."
-    const CLIENT_KEY = "YOUR_TOSS_CLIENT_KEY";
-
-    const tossPayments = TossPayments(CLIENT_KEY);
-
-    document.getElementById("pay-btn").addEventListener("click", async () => {
-      const btn = document.getElementById("pay-btn");
-      const errEl = document.getElementById("error-msg");
-      btn.disabled = true;
-      btn.textContent = "결제창 여는 중...";
-      errEl.style.display = "none";
-
-      const orderId = "nseo-pro-" + Date.now();
-      const successUrl = new URL("success.html", location.href).href
-        + `?ext=${encodeURIComponent(extId)}`;
-      const failUrl = location.href;
-
-      try {
-        await tossPayments.requestPayment("카드", {
-          amount: 4900,
-          orderId,
-          orderName: "Naver SEO Analyzer Pro (31일)",
-          successUrl,
-          failUrl,
-          customerName: "사용자",
-          taxFreeAmount: 0,
-        });
-      } catch (e) {
-        if (e.code !== "USER_CANCEL") {
-          errEl.textContent = e.message || "결제 중 오류가 발생했습니다.";
-          errEl.style.display = "block";
-        }
-        btn.disabled = false;
-        btn.textContent = "카드로 결제하기";
-      }
-    });
-  </script>
 </body>
 </html>

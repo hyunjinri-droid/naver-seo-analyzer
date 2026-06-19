@@ -1,7 +1,8 @@
 // popup.js - Naver SEO Analyzer
 const WORKER_URL = "https://naver-seo.hyunjinri.workers.dev";
 const FREE_LIMIT = 15;
-const PRO_PAGE_URL = "https://hyunjinri-droid.github.io/naver-seo-analyzer/pro.html";
+// ⚠️ Gumroad 상품 페이지 URL을 아래에 입력하세요
+const GUMROAD_URL = "https://hyunjinri.gumroad.com/l/YOUR_PRODUCT_ID";
 const LICENSE_KEY = "nseo_license";
 
 async function getLicenseKey() {
@@ -20,8 +21,7 @@ async function loadUsage() {
     const data = await res.json();
 
     if (data.isPro) {
-      renderProUsage();
-      renderProBanner();
+      renderProState();
       return;
     }
 
@@ -63,7 +63,8 @@ async function loadUsage() {
   }
 }
 
-function renderProUsage() {
+function renderProState() {
+  // 사용량 카드 → Pro 표시
   document.getElementById("usage-section").innerHTML = `
     <div class="usage-card">
       <div class="usage-top">
@@ -71,31 +72,88 @@ function renderProUsage() {
         <span class="usage-count" style="color:var(--accent)">무제한</span>
       </div>
       <div class="usage-bar-wrap">
-        <div class="usage-bar" style="width:100%;background:var(--accent);opacity:0.5"></div>
+        <div class="usage-bar" style="width:100%;opacity:0.5"></div>
       </div>
       <div class="usage-remain" style="color:var(--accent)">무제한 분석 이용 중이에요 ✨</div>
     </div>
   `;
-}
 
-function renderProBanner() {
-  const banner = document.querySelector(".pro-banner");
-  if (!banner) return;
-  banner.innerHTML = `
+  // Pro 배너 → 이용 중 표시
+  document.getElementById("pro-banner").innerHTML = `
     <div class="pro-text">
-      <strong>Pro 이용 중</strong>
-      무제한 분석 · 구독 관리
+      <strong style="color:var(--accent)">Pro 이용 중 ✓</strong>
+      무제한 분석 활성화됨
     </div>
-    <button class="pro-btn" id="pro-btn" style="background:#1a1a2e;border:1px solid var(--accent);color:var(--accent)">관리</button>
+    <button class="pro-btn" id="pro-logout"
+      style="background:transparent;border:1px solid var(--border);color:var(--muted)">
+      해제
+    </button>
   `;
-  document.getElementById("pro-btn").addEventListener("click", () => {
-    chrome.tabs.create({ url: PRO_PAGE_URL });
+  document.getElementById("toggle-license").style.display = "none";
+  document.getElementById("pro-logout").addEventListener("click", async () => {
+    await chrome.storage.local.remove([LICENSE_KEY]);
+    location.reload();
   });
 }
 
+// ── 구매 버튼 ────────────────────────────────────────────
 document.getElementById("pro-btn").addEventListener("click", () => {
-  const extId = chrome.runtime.id;
-  chrome.tabs.create({ url: `${PRO_PAGE_URL}?ext=${extId}` });
+  chrome.tabs.create({ url: GUMROAD_URL });
 });
+
+// ── 라이선스 키 입력 토글 ─────────────────────────────────
+document.getElementById("toggle-license").addEventListener("click", () => {
+  const section = document.getElementById("license-section");
+  const isOpen = section.style.display === "block";
+  section.style.display = isOpen ? "none" : "block";
+  document.getElementById("toggle-license").textContent =
+    isOpen ? "이미 구매하셨나요? 라이선스 키 입력" : "닫기";
+  if (!isOpen) document.getElementById("license-input").focus();
+});
+
+// ── 라이선스 키 인증 ─────────────────────────────────────
+document.getElementById("license-submit").addEventListener("click", verifyKey);
+document.getElementById("license-input").addEventListener("keydown", e => {
+  if (e.key === "Enter") verifyKey();
+});
+
+async function verifyKey() {
+  const input = document.getElementById("license-input");
+  const btn   = document.getElementById("license-submit");
+  const msg   = document.getElementById("license-msg");
+  const key   = input.value.trim();
+
+  if (!key) return;
+
+  btn.disabled = true;
+  btn.textContent = "확인 중...";
+  msg.className = "license-msg";
+  msg.textContent = "";
+
+  try {
+    const res  = await fetch(`${WORKER_URL}/license/verify`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ licenseKey: key })
+    });
+    const data = await res.json();
+
+    if (data.valid) {
+      await chrome.storage.local.set({ [LICENSE_KEY]: key });
+      msg.className = "license-msg ok";
+      msg.textContent = "✓ Pro 활성화 완료! 잠시 후 새로고침됩니다.";
+      setTimeout(() => location.reload(), 1200);
+    } else {
+      msg.className = "license-msg err";
+      msg.textContent = "유효하지 않은 라이선스 키예요. 다시 확인해주세요.";
+    }
+  } catch (e) {
+    msg.className = "license-msg err";
+    msg.textContent = "서버 연결에 실패했어요. 잠시 후 다시 시도해주세요.";
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "인증";
+  }
+}
 
 loadUsage();
