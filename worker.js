@@ -106,7 +106,7 @@ async function verifyLicense(key, env) {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({
-        product_id: env.GUMROAD_PRODUCT_ID,
+        product_permalink: env.GUMROAD_PRODUCT_PERMALINK,
         license_key: key,
       })
     });

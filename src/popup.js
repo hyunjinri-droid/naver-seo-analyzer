@@ -2,7 +2,7 @@
 const WORKER_URL = "https://naver-seo.hyunjinri.workers.dev";
 const FREE_LIMIT = 15;
 // ⚠️ Gumroad 상품 페이지 URL을 아래에 입력하세요
-const GUMROAD_URL = "https://hyunjinri.gumroad.com/l/YOUR_PRODUCT_ID";
+const GUMROAD_URL = "https://adsensepulse.gumroad.com/l/xoppeo";
 const LICENSE_KEY = "nseo_license";
 
 async function getLicenseKey() {
