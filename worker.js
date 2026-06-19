@@ -88,6 +88,44 @@ export default {
       return json({ valid });
     }
 
+    // ── /trend - 네이버 데이터랩 12주 트렌드 ─────────────
+    if (url.pathname === "/trend") {
+      const keyword = url.searchParams.get("q");
+      if (!keyword) return json({ error: "keyword required" }, 400);
+
+      const endDate   = new Date();
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - 7 * 12);
+
+      const fmt = d => d.toISOString().split("T")[0];
+
+      const body = {
+        startDate: fmt(startDate),
+        endDate:   fmt(endDate),
+        timeUnit:  "week",
+        keywordGroups: [{ groupName: keyword, keywords: [keyword] }],
+        device: "",
+        ages:   [],
+        gender: ""
+      };
+
+      try {
+        const res = await fetch("https://openapi.naver.com/v1/datalab/search", {
+          method: "POST",
+          headers: {
+            "X-Naver-Client-Id":     env.NAVER_DATALAB_ID,
+            "X-Naver-Client-Secret": env.NAVER_DATALAB_SECRET,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(body)
+        });
+        if (!res.ok) return json({ error: "datalab error" }, res.status);
+        return json(await res.json());
+      } catch (e) {
+        return json({ error: e.message }, 500);
+      }
+    }
+
     return json({ error: "Not found" }, 404);
   },
 };
