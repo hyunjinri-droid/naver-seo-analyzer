@@ -156,4 +156,9 @@ async function verifyKey() {
   }
 }
 
+// ── 블로그 글쓰기 바로가기 ────────────────────────────────
+document.getElementById("goto-blog-btn").addEventListener("click", () => {
+  chrome.tabs.create({ url: "https://blog.naver.com/PostWriteForm.naver" });
+});
+
 loadUsage();
